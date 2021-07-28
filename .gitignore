@@ -1,2 +1,5 @@
 # Compilation products
 target
+
+# Mac files
+.DS_Store
