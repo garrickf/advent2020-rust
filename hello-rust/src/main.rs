@@ -1,6 +1,4 @@
-/**
- * Hello Rust (Getting Started guide)
- */
+// Hello Rust (Getting Started guide)
 use ferris_says::say;
 use std::io::{stdout, BufWriter};
 
