@@ -1,18 +1,17 @@
 use std::collections::HashMap;
+use std::error::Error;
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader};
+use std::process;
 
-fn read_input_from_file() -> Result<Vec<i32>, io::Error> {
+fn read_input_from_file() -> Result<Vec<i32>, Box<dyn Error>> {
     let path = "data/input.txt";
     let input = File::open(path)?;
     let buffered = BufReader::new(input);
 
     let mut nums = Vec::new();
     for line in buffered.lines() {
-        let num = line?
-            .trim()
-            .parse()
-            .expect("Could not parse numbers from file.");
+        let num = line?.trim().parse()?;
         nums.push(num);
     }
 
@@ -62,7 +61,10 @@ fn part_two(nums: &Vec<i32>) {
 }
 
 fn main() {
-    let nums = read_input_from_file().expect("Error reading file.");
+    let nums = read_input_from_file().unwrap_or_else(|e| {
+        println!("Error reading file: {}", e);
+        process::exit(1);
+    });
 
     println!("Part One\n---");
     part_one(&nums);
