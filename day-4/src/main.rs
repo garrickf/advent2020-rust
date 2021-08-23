@@ -33,24 +33,16 @@ struct PassportData {
 fn read_input_from_file() -> Result<Vec<PassportData>, Box<dyn Error>> {
     let path = "data/input.txt";
     let file = File::open(path)?;
-    let mut buffered = BufReader::new(file);
+    let buffered = BufReader::new(file);
 
     let mut data = Vec::new();
-    loop {
-        let mut passport: PassportData = Default::default();
-        loop {
-            let mut line = String::new();
-            let len = buffered.read_line(&mut line)?;
-            if len == 0 {
-                data.push(passport);
-                return Ok(data);
-            }
-
-            line = line.trim().to_string();
-            if line == "" {
-                break;
-            }
-
+    let mut passport: PassportData = Default::default();
+    for line in buffered.lines() {
+        let line = line?.trim().to_string();
+        if line == "" {
+            data.push(passport);
+            passport = Default::default();
+        } else {
             for attribute in line.split(" ") {
                 let mut iter = attribute.split(":");
                 let key = iter.next().unwrap();
@@ -85,9 +77,9 @@ fn read_input_from_file() -> Result<Vec<PassportData>, Box<dyn Error>> {
                 }
             }
         }
-
-        data.push(passport);
     }
+    data.push(passport);
+    Ok(data)
 }
 
 fn is_valid(passport: &PassportData) -> bool {
