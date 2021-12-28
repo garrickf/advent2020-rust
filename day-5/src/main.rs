@@ -5,6 +5,7 @@ use std::fmt;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+/// Runs the two parts of the Binary Boarding problem.
 fn main() {
     // Small testing lines
     let test = BoardingPosition::from_boarding_pass("FBFBBFFRLR".to_owned()).unwrap();
@@ -12,10 +13,11 @@ fn main() {
 
     let mut plane = [[false; 8]; 128];
 
-    // Part One
-    let boarding_passes = read_input_from_file().unwrap();
+    // Part One: find boarding pass with highest ID
+    let boarding_passes = read_input_from_file("data/input.txt").unwrap();
     let mut highest_id = -1;
     for boarding_pass in boarding_passes {
+        // We just unwrap here, assuming that there's no malformed input
         let pos = BoardingPosition::from_boarding_pass(boarding_pass).unwrap();
         if pos.get_id() > highest_id {
             highest_id = pos.get_id();
@@ -33,14 +35,14 @@ fn main() {
                 seen_start = true;
             } else if seen_start {
                 println!("missing row {}, col {}, id {}", row, col, row * 8 + col);
-                return;
+                return; // We found the seat, so we're done!
             }
         }
     }
 }
 
-fn read_input_from_file() -> Result<Vec<String>, Box<dyn Error>> {
-    let path = "data/input.txt";
+/// Reads puzzle input from a file.
+fn read_input_from_file(path: &str) -> Result<Vec<String>, Box<dyn Error>> {
     let input = File::open(path)?;
     let buffered = BufReader::new(input);
 
@@ -53,8 +55,7 @@ fn read_input_from_file() -> Result<Vec<String>, Box<dyn Error>> {
     Ok(input)
 }
 
-// The BoardingPassError class is used for errors related to parsing or using a
-// boarding pass.
+/// Error class used for errors related to parsing or using a boarding pass.
 #[derive(Debug)]
 struct BoardingPassError {
     msg: String,
@@ -67,26 +68,26 @@ impl fmt::Display for BoardingPassError {
     }
 }
 
-// The BoardingPosition class is a row and column on the plane.
+/// Class representing a single seat on the plane.
 struct BoardingPosition {
     row: i32,
     col: i32,
 }
 
 impl BoardingPosition {
+    /// Helper function that checks if the boarding position is in bounds.
     fn is_valid(&self) -> bool {
-        // Helper function that checks if the boarding position is in bounds.
         return self.row >= 0 && self.row < 128 && self.col >= 0 && self.col < 8;
     }
 
+    /// Method that returns the ID of the boarding position.
     fn get_id(&self) -> i32 {
-        // Returns the id of the boarding position.
         return self.row * 8 + self.col;
     }
 
+    /// Associated function that constructs a BoardingPosition from a boarding
+    /// pass string.
     fn from_boarding_pass(code: String) -> Result<Self, BoardingPassError> {
-        // Associated function that constructs a BoardingPosition from a boarding
-        // pass string.
         let (mut row_lo, mut row_hi) = (0, 127);
         let (mut col_lo, mut col_hi) = (0, 7);
         for c in code.chars() {
@@ -143,6 +144,7 @@ impl BoardingPosition {
         }
     }
 
+    /// Constructs a BoardingPosition given a row and column.
     fn new(row: i32, col: i32) -> Result<Self, BoardingPassError> {
         let pos = BoardingPosition { row, col };
 
